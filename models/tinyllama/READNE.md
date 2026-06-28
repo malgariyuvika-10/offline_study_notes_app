@@ -1,0 +1,14 @@
+# TinyLlama
+
+Download the GGUF model:
+
+tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+
+Place it inside this folder.
+
+Example:
+
+```
+models/tinyllama/
+    tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+```
