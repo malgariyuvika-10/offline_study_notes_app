@@ -1,93 +1,503 @@
-# StudyStruct AI
+# 📚 Offline Study Notes Structuring App
+### CPU-First • Offline AI • Structured Learning Engine
 
+---
 
+# Phase 1 – Plan & Specification
 
-## Getting started
+## Team Information
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+**Project Name:** Offline Study Notes Structuring App
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+**Hackathon Theme:** CPU-First Offline AI
 
-## Add your files
+**Platform:** Streamlit Web Application
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+**License:** GNU General Public License v3.0 (GPL-3.0)
+
+---
+
+# 1. Project Overview
+
+## Problem Statement
+
+Students often receive study materials in different unstructured formats such as:
+
+- PDF Notes
+- Handwritten Notes
+- Lecture Audio
+- Text Files
+- Images
+
+Organizing these materials manually is time-consuming and inefficient.
+
+---
+
+## Proposed Solution
+
+The Offline Study Notes Structuring App is a CPU-first AI application that processes unstructured educational content locally and converts it into structured learning resources.
+
+The application works completely offline without relying on any cloud APIs or internet connectivity.
+
+The generated output includes:
+
+- Structured Notes
+- Topic-wise Headings
+- Key Points
+- Chapter Summary
+- Flashcards (Question & Answer)
+- Revision Notes
+- JSON Structured Output
+
+---
+
+# 2. Objectives
+
+The primary objectives are:
+
+- Build a completely offline AI application.
+- Ensure all inference runs on CPU.
+- Support multiple educational input formats.
+- Generate structured study notes.
+- Store processed data locally.
+- Demonstrate edge AI capabilities without cloud services.
+
+---
+
+# 3. Technical Constraints
+
+## CPU First
+
+No GPU or CUDA acceleration will be used.
+
+Local inference only.
+
+Models used:
+
+- llama.cpp
+- Whisper.cpp
+- Tesseract OCR
+
+---
+
+## Offline First
+
+The application will continue functioning when Wi-Fi is turned OFF.
+
+No external API calls.
+
+No OpenAI API.
+
+No cloud inference.
+
+---
+
+# 4. Technology Stack
+
+## Frontend
+
+- Streamlit
+
+Purpose:
+
+- Upload files
+- Display structured notes
+- Download JSON output
+
+---
+
+## Backend
+
+- Python 3.11
+
+Framework:
+
+- FastAPI (optional)
+- Python Processing Pipeline
+
+---
+
+## AI Models
+
+### Text Structuring
+
+Runtime:
+- llama.cpp
+
+Model:
+- TinyLlama 1.1B GGUF
+OR
+- Mistral 7B Quantized GGUF
+
+Purpose:
+
+- Generate summaries
+- Extract headings
+- Create flashcards
+- Convert notes into structured JSON
+
+---
+
+### Audio Transcription
+
+Runtime:
+
+- Whisper.cpp
+
+Purpose:
+
+Convert lecture audio into text.
+
+---
+
+### OCR
+
+Engine:
+
+- Tesseract OCR
+
+Purpose:
+
+Extract text from images.
+
+---
+
+## PDF Processing
+
+Library:
+
+- pdfplumber
+
+Purpose:
+
+Extract text from PDF documents.
+
+---
+
+## Database
+
+SQLite
+
+Purpose:
+
+Store:
+
+- processed notes
+- metadata
+- generated JSON
+- history
+
+---
+
+# 5. System Architecture
 
 ```
-cd existing_repo
-git remote add origin https://code.swecha.org/Hepsibha/studystruct-ai.git
-git branch -M main
-git push -uf origin main
+Input Layer
+│
+├── PDF
+├── Images
+├── Audio
+├── Text Files
+│
+▼
+
+Extraction Layer
+│
+├── pdfplumber
+├── Tesseract OCR
+├── Whisper.cpp
+│
+▼
+
+Preprocessing
+│
+├── Cleaning
+├── Chunking
+├── Normalization
+│
+▼
+
+AI Processing
+│
+├── llama.cpp
+├── Prompt Engineering
+├── JSON Structuring
+│
+▼
+
+Storage
+│
+├── SQLite
+├── JSON Files
+│
+▼
+
+Output
+│
+├── Structured Notes
+├── Summary
+├── Flashcards
+├── Revision Notes
+└── Streamlit UI
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://code.swecha.org/Hepsibha/studystruct-ai/-/settings/integrations)
+# 6. Application Workflow
 
-## Collaborate with your team
+Step 1
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+User uploads:
 
-## Test and Deploy
+- PDF
+- Image
+- Audio
+- Text
 
-Use the built-in continuous integration in GitLab.
+↓
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Step 2
 
-***
+Application detects file type.
 
-# Editing this README
+↓
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Step 3
 
-## Suggestions for a good README
+Extract raw text using:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- OCR
+- PDF Parser
+- Whisper
 
-## Name
-Choose a self-explaining name for your project.
+↓
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Step 4
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Clean and normalize extracted text.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+↓
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Step 5
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Send cleaned text to local llama.cpp model.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+↓
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Step 6
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Generate:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- Structured Notes
+- Summary
+- Flashcards
+- Key Concepts
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+↓
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Step 7
 
-## License
-For open source projects, say how it is licensed.
+Store output in SQLite.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+↓
+
+Step 8
+
+Display results in Streamlit.
+
+---
+
+# 7. Structured Output Schema
+
+```json
+{
+  "title": "",
+  "topics": [
+    {
+      "heading": "",
+      "summary": "",
+      "key_points": []
+    }
+  ],
+  "flashcards": [
+    {
+      "question": "",
+      "answer": ""
+    }
+  ]
+}
+```
+
+---
+
+# 8. Local Storage
+
+SQLite Database
+
+Table:
+
+notes
+
+Columns:
+
+- id
+- title
+- input_type
+- created_at
+- structured_json
+- summary
+
+---
+
+# 9. Project Folder Structure
+
+```
+offline-study-notes-app/
+
+│
+
+├── streamlit_app/
+│   └── app.py
+│
+├── backend/
+│   ├── pipeline.py
+│   ├── extractor_pdf.py
+│   ├── extractor_image.py
+│   ├── extractor_audio.py
+│   ├── llm_engine.py
+│   ├── schema_builder.py
+│   ├── database.py
+│   └── utils.py
+│
+├── models/
+│   ├── llama.cpp/
+│   └── whisper.cpp/
+│
+├── storage/
+│   ├── notes.db
+│   └── json/
+│
+├── tests/
+│
+├── README.md
+├── SPEC.md
+├── LICENSE
+├── CONTRIBUTING.md
+└── requirements.txt
+```
+
+---
+
+# 10. Work Division
+
+## Member 1
+
+### AI & Backend
+
+Responsibilities
+
+- PDF Extraction
+- OCR
+- Whisper Integration
+- llama.cpp Integration
+- AI Pipeline
+- SQLite
+
+Estimated Time
+
+8 Hours
+
+---
+
+## Member 2
+
+### Frontend & DevOps
+
+Responsibilities
+
+- Streamlit UI
+- File Upload
+- JSON Display
+- Download Feature
+- Documentation
+- GitLab CI
+
+Estimated Time
+
+8 Hours
+
+---
+
+# 11. GitLab Issues
+
+| Issue | Assignee | Estimate |
+|---------|----------|----------|
+| PDF Extraction | Member 1 | 2 hrs |
+| OCR Integration | Member 1 | 2 hrs |
+| Whisper Integration | Member 1 | 3 hrs |
+| llama.cpp Setup | Member 1 | 3 hrs |
+| Prompt Engineering | Member 1 | 2 hrs |
+| Backend Pipeline | Member 1 | 3 hrs |
+| SQLite Storage | Member 1 | 2 hrs |
+| Streamlit UI | Member 2 | 3 hrs |
+| CLI Tool | Member 2 | 2 hrs |
+| GitLab CI | Member 2 | 3 hrs |
+
+---
+
+# 12. Deliverables
+
+- README.md
+- SPEC.md
+- Streamlit Web Application
+- SQLite Database
+- Structured JSON Output
+- Offline CPU AI Inference
+- GitLab Repository
+- GPL-3.0 License
+
+---
+
+# 13. Validation Criteria
+
+The project will be evaluated on:
+
+- Accuracy of structured notes
+- CPU performance
+- Offline execution
+- Memory efficiency
+- JSON schema correctness
+- Local data persistence
+
+---
+
+# 14. Offline Compliance
+
+✅ No OpenAI API
+
+✅ No Internet Required
+
+✅ No Cloud Models
+
+✅ CPU Only
+
+✅ Local SQLite Storage
+
+✅ Local AI Models
+
+---
+
+# 15. Future Enhancements
+
+- Multi-language Support
+- Handwritten Notes Recognition
+- Smart Revision Scheduler
+- Semantic Search
+- Mobile Application
+- Offline Vector Search
+
+---
+
+# Conclusion
+
+The Offline Study Notes Structuring App demonstrates that modern AI applications can run efficiently on standard CPUs without requiring GPUs or cloud services. By combining lightweight local AI models with offline-first architecture, the project provides an accessible, privacy-preserving, and reliable educational assistant suitable for students in both connected and disconnected environments.
