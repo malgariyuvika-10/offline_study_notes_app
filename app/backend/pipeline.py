@@ -12,7 +12,7 @@ class StudyNotesPipeline:
     """
     Converts raw unstructured text into structured study notes:
     - Title
-    - Summary
+    - Summary (POINT-WISE)
     - Key Topics
     """
 
@@ -20,11 +20,12 @@ class StudyNotesPipeline:
         logger.info("Study Notes Pipeline initialized")
 
     def process(self, text: str) -> Dict:
+
         if not text or not isinstance(text, str):
             logger.warning("Empty or invalid input received")
             return {
                 "title": "Untitled Document",
-                "summary": "No content available.",
+                "summary": ["No content available."],
                 "topics": []
             }
 
@@ -40,37 +41,48 @@ class StudyNotesPipeline:
         """
         Normalize whitespace and clean raw text.
         """
-        text = re.sub(r'\s+', ' ', text)  # collapse multiple spaces/newlines
+        text = re.sub(r'\s+', ' ', text)
         return text.strip()
 
     def generate_title(self, text: str) -> str:
         """
         Extract first meaningful line or sentence as title.
         """
-        # Try line-based title first
+
         for line in text.split("\n"):
             line = line.strip()
             if line:
                 return line[:90]
 
-        # Fallback: first sentence
         sentences = re.split(r'(?<=[.!?])\s+', text)
+
         for s in sentences:
             if s.strip():
                 return s.strip()[:90]
 
         return "Untitled Document"
 
-    def generate_summary(self, text: str) -> str:
+    # =====================================================
+    # ✅ FIXED SUMMARY (POINT-WISE OUTPUT)
+    # =====================================================
+    def generate_summary(self, text: str) -> List[str]:
         """
-        Create a short 2–3 sentence summary.
+        Create point-wise summary (bullet format)
         """
-        sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if s.strip()]
+
+        sentences = [
+            s.strip()
+            for s in re.split(r'(?<=[.!?])\s+', text)
+            if s.strip()
+        ]
 
         if not sentences:
-            return "No summary available."
+            return ["No summary available."]
 
-        return " ".join(sentences[:3])
+        # Take first 5 sentences as summary points
+        summary_points = sentences[:5]
+
+        return [f"• {point}" for point in summary_points]
 
     def extract_topics(self, text: str) -> List[str]:
         """
@@ -87,7 +99,6 @@ class StudyNotesPipeline:
             "they", "them", "then", "into", "over"
         }
 
-        # Filter words
         filtered_words = [
             w for w in words
             if w not in stopwords and len(w) >= 5
@@ -98,7 +109,6 @@ class StudyNotesPipeline:
 
         freq = Counter(filtered_words)
 
-        # Most common topics first
         topics = [word for word, _ in freq.most_common(8)]
 
         return [t.title() for t in topics]
