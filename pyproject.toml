@@ -1,0 +1,99 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "offline-study-notes-ai"
+version = "0.1.0"
+description = "Offline CPU-first AI application that converts unstructured study materials into structured notes, summaries, flashcards, and JSON."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0" }
+
+authors = [
+    { name = "Hackathon Team" }
+]
+
+keywords = [
+    "offline-ai",
+    "streamlit",
+    "llama-cpp",
+    "education",
+    "cpu-ai",
+    "ocr",
+    "whisper",
+    "study-notes"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent"
+]
+
+# ----------------------------
+# Black Configuration
+# ----------------------------
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+skip-string-normalization = false
+
+# ----------------------------
+# Ruff Configuration
+# ----------------------------
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "N",
+    "UP",
+    "B"
+]
+
+ignore = [
+    "E501"
+]
+
+# ----------------------------
+# MyPy Configuration
+# ----------------------------
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+# ----------------------------
+# Pytest Configuration
+# ----------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = [
+    "test_*.py"
+]
+
+addopts = "-v"
+
+# ----------------------------
+# Coverage (Optional)
+# ----------------------------
+
+[tool.coverage.run]
+source = ["app", "backend"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
