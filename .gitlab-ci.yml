@@ -6,9 +6,16 @@ stages:
   - coverage
   - security
 
+# -------------------------
+# Global setup (Windows-safe Python detection)
+# -------------------------
 before_script:
-  - python -m pip install --upgrade pip
-  - python -m pip install -r requirements.txt
+  - python --version || py --version
+  - python -m pip install --upgrade pip || py -m pip install --upgrade pip
+  - python -m pip install -r requirements.txt || py -m pip install -r requirements.txt
+
+# helper variable idea (not required but useful):
+# use: py instead of python if python fails
 
 # -------------------------
 # Lint
@@ -16,11 +23,13 @@ before_script:
 lint:
   stage: lint
   script:
+    - python -m pip install ruff flake8 pylint vulture
     - python -m ruff check .
 
 quality:
   stage: lint
   script:
+    - python -m pip install flake8 pylint vulture
     - python -m flake8 app
     - python -m pylint app
     - python -m vulture app
@@ -28,7 +37,8 @@ quality:
 pyupgrade:
   stage: lint
   script:
-    - python -m pyupgrade --py312-plus app/**/*.py
+    - python -m pip install pyupgrade
+    - python -m pyupgrade --py312-plus app
 
 # -------------------------
 # Format
@@ -36,6 +46,7 @@ pyupgrade:
 format:
   stage: format
   script:
+    - python -m pip install black
     - python -m black --check .
 
 # -------------------------
@@ -44,6 +55,7 @@ format:
 type_check:
   stage: type_check
   script:
+    - python -m pip install mypy
     - python -m mypy app
 
 # -------------------------
@@ -52,6 +64,7 @@ type_check:
 test:
   stage: test
   script:
+    - python -m pip install pytest pytest-cov
     - python -m pytest tests
 
 # -------------------------
@@ -60,6 +73,7 @@ test:
 coverage:
   stage: coverage
   script:
+    - python -m pip install pytest pytest-cov
     - python -m pytest --cov=app --cov-report=term --cov-report=xml
 
 # -------------------------
@@ -68,14 +82,17 @@ coverage:
 bandit_scan:
   stage: security
   script:
+    - python -m pip install bandit
     - python -m bandit -r app
 
 semgrep_scan:
   stage: security
   script:
+    - python -m pip install semgrep
     - python -m semgrep --config=auto .
 
 dependency_audit:
   stage: security
   script:
+    - python -m pip install pip-audit
     - python -m pip_audit
