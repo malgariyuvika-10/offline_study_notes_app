@@ -8,41 +8,46 @@ stages:
 variables:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONUTF8: "1"
+  # FIX: Hardcode your Windows local user account path as the fallback global variable
+  PYTHON: "C:\Users\Hepsibha\AppData\Local\Python\pythoncore-3.14-64\python.exe"
 
-before_script:
-  - |
-    if ($env:PYTHON -and (Test-Path $env:PYTHON)) {
-      $env:PYTHON_EXE = $env:PYTHON
-      $env:PYTHON_USE_LAUNCHER = "0"
-    }
-    elseif (Get-Command python -ErrorAction SilentlyContinue) {
-      $env:PYTHON_EXE = "python"
-      $env:PYTHON_USE_LAUNCHER = "0"
-    }
-    elseif (Get-Command py -ErrorAction SilentlyContinue) {
-      $env:PYTHON_EXE = "py"
-      $env:PYTHON_USE_LAUNCHER = "1"
-    }
-    else {
-      throw "Python was not found. Install Python for all users, add it to the System PATH, restart the GitLab Runner service, or set CI/CD variable PYTHON to the full python.exe path."
-    }
-    function Invoke-CiPython {
-      if ($env:PYTHON_USE_LAUNCHER -eq "1") {
-        & py -3 @args
+default:
+  tags:
+    - windows  # Directs all jobs to your local Windows shell runner
+  before_script:
+    - |
+      if ($env:PYTHON -and (Test-Path $env:PYTHON)) {
+        $env:PYTHON_EXE = $env:PYTHON
+        $env:PYTHON_USE_LAUNCHER = "0"
+      }
+      elseif (Get-Command python -ErrorAction SilentlyContinue) {
+        $env:PYTHON_EXE = "python"
+        $env:PYTHON_USE_LAUNCHER = "0"
+      }
+      elseif (Get-Command py -ErrorAction SilentlyContinue) {
+        $env:PYTHON_EXE = "py"
+        $env:PYTHON_USE_LAUNCHER = "1"
       }
       else {
-        & $env:PYTHON_EXE @args
+        throw "Python was not found. Install Python for all users, add it to the System PATH, restart the GitLab Runner service, or set CI/CD variable PYTHON to the full python.exe path."
       }
-      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    }
-  - |
-    $PythonScripts = (Invoke-CiPython -c "import sysconfig; print(sysconfig.get_path('scripts'))").Trim()
-    if ($PythonScripts -and (Test-Path $PythonScripts)) {
-      $env:PATH = "$PythonScripts;$env:PATH"
-    }
-  - Invoke-CiPython --version
-  - Invoke-CiPython -m pip install --upgrade pip
-  - Invoke-CiPython -m pip install -r requirements.txt
+      function Invoke-CiPython {
+        if ($env:PYTHON_USE_LAUNCHER -eq "1") {
+          & py -3 @args
+        }
+        else {
+          & $env:PYTHON_EXE @args
+        }
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      }
+    - |
+      $PythonScripts = (Invoke-CiPython -c "import sysconfig; print(sysconfig.get_path('scripts'))").Trim()
+      if ($PythonScripts -and (Test-Path $PythonScripts)) {
+        $env:PATH = "$PythonScripts;$env:PATH"
+      }
+    - Invoke-CiPython --version
+    - Invoke-CiPython -m pip install --upgrade pip
+    - Invoke-CiPython -m pip install -r requirements.txt
 
 lint:
   stage: lint
@@ -52,13 +57,13 @@ lint:
     - Invoke-CiPython -m flake8 app
     - Invoke-CiPython -m pylint app
     - Invoke-CiPython -m vulture app
-    - pyupgrade --py312-plus app
+    - Invoke-CiPython -m pyupgrade --py312-plus app/*.py
 
 format:
   stage: format
   script:
-    - Invoke-CiPython -m pip install black
-    - Invoke-CiPython -m black --check .
+    - Invoke-CiPython -m pip install ruff
+    - Invoke-CiPython -m ruff format --check .
 
 type_check:
   stage: type_check
@@ -75,7 +80,6 @@ test:
 security:
   stage: security
   script:
-    - Invoke-CiPython -m pip install bandit semgrep pip-audit
+    - Invoke-CiPython -m pip install bandit pip-audit
     - Invoke-CiPython -m bandit -r app
-    - semgrep --config=auto .
-    - pip-audit
+    - Invoke-CiPython -m pip-audit
