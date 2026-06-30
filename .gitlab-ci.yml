@@ -8,8 +8,8 @@ stages:
 variables:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONUTF8: "1"
-  # FIX: Using single quotes prevents YAML from interpreting backslashes as escape sequences
   PYTHON: 'C:\Users\Hepsibha\AppData\Local\Python\pythoncore-3.14-64\python.exe'
+  GIT_DEPTH: "0"  # Forces a full clone, preventing delta matching failures
 
 default:
   tags:
