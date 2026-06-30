@@ -1,0 +1,30 @@
+stages:
+  - local_pipeline
+
+run_all_checks:
+  stage: local_pipeline
+  tags:
+    - windows  # Directs the job to your local Windows shell runner
+  script:
+    # 1. Install/Update Global tooling & Requirements
+    - pip install -r requirements.txt
+    - pip install ruff mypy pip-audit pytest pytest-cov
+
+    # 2. Lint & Format (Using Ruff)
+    - echo "Running Linter..."
+    - ruff check .
+    - echo "Running Formatter Check..."
+    - ruff format --check .
+
+    # 3. Type Checking (Using Mypy)
+    - echo "Running Type Checker..."
+    - mypy .
+
+    # 4. Security & Dependency Audit (Using pip-audit)
+    # Note: Secret scanning (gitleaks) is handled locally by your pre-commit hooks
+    - echo "Running Dependency Audit..."
+    - pip-audit
+
+    # 5. Testing & Coverage (Using Pytest)
+    - echo "Running Tests & Coverage..."
+    - pytest --cov=src/ tests/ --cov-report=term-missing
