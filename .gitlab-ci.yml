@@ -5,7 +5,6 @@ stages:
   - format
   - type_check
   - test
-  - coverage
   - security
 
 before_script:
@@ -14,25 +13,16 @@ before_script:
   - pip install -r requirements.txt
 
 # -------------------------
-# Lint
+# Lint + Quality
 # -------------------------
 lint:
   stage: lint
   script:
-    - pip install ruff flake8 pylint vulture
+    - pip install ruff flake8 pylint vulture pyupgrade
     - ruff check .
-
-quality:
-  stage: lint
-  script:
     - flake8 app
     - pylint app
     - vulture app
-
-pyupgrade:
-  stage: lint
-  script:
-    - pip install pyupgrade
     - pyupgrade --py312-plus app
 
 # -------------------------
@@ -54,39 +44,21 @@ type_check:
     - mypy app
 
 # -------------------------
-# Tests
+# Tests + Coverage
 # -------------------------
 test:
   stage: test
   script:
     - pip install pytest pytest-cov
-    - pytest tests
-
-# -------------------------
-# Coverage
-# -------------------------
-coverage:
-  stage: coverage
-  script:
-    - pytest --cov=app --cov-report=term --cov-report=xml
+    - pytest tests --cov=app --cov-report=term --cov-report=xml
 
 # -------------------------
 # Security
 # -------------------------
-bandit_scan:
+security:
   stage: security
   script:
-    - pip install bandit
+    - pip install bandit semgrep pip-audit
     - bandit -r app
-
-semgrep_scan:
-  stage: security
-  script:
-    - pip install semgrep
     - semgrep --config=auto .
-
-dependency_audit:
-  stage: security
-  script:
-    - pip install pip-audit
     - pip-audit
