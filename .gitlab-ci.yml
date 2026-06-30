@@ -1,5 +1,3 @@
-image: python:3.12
-
 stages:
   - lint
   - format
@@ -7,58 +5,77 @@ stages:
   - test
   - security
 
-before_script:
-  - python --version
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUTF8: "1"
 
-# -------------------------
-# Lint + Quality
-# -------------------------
+before_script:
+  - |
+    if ($env:PYTHON -and (Test-Path $env:PYTHON)) {
+      $env:PYTHON_EXE = $env:PYTHON
+      $env:PYTHON_USE_LAUNCHER = "0"
+    }
+    elseif (Get-Command python -ErrorAction SilentlyContinue) {
+      $env:PYTHON_EXE = "python"
+      $env:PYTHON_USE_LAUNCHER = "0"
+    }
+    elseif (Get-Command py -ErrorAction SilentlyContinue) {
+      $env:PYTHON_EXE = "py"
+      $env:PYTHON_USE_LAUNCHER = "1"
+    }
+    else {
+      throw "Python was not found. Install Python for all users, add it to the System PATH, restart the GitLab Runner service, or set CI/CD variable PYTHON to the full python.exe path."
+    }
+    function Invoke-CiPython {
+      if ($env:PYTHON_USE_LAUNCHER -eq "1") {
+        & py -3 @args
+      }
+      else {
+        & $env:PYTHON_EXE @args
+      }
+      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
+  - |
+    $PythonScripts = (Invoke-CiPython -c "import sysconfig; print(sysconfig.get_path('scripts'))").Trim()
+    if ($PythonScripts -and (Test-Path $PythonScripts)) {
+      $env:PATH = "$PythonScripts;$env:PATH"
+    }
+  - Invoke-CiPython --version
+  - Invoke-CiPython -m pip install --upgrade pip
+  - Invoke-CiPython -m pip install -r requirements.txt
+
 lint:
   stage: lint
   script:
-    - pip install ruff flake8 pylint vulture pyupgrade
-    - ruff check .
-    - flake8 app
-    - pylint app
-    - vulture app
+    - Invoke-CiPython -m pip install ruff flake8 pylint vulture pyupgrade
+    - Invoke-CiPython -m ruff check .
+    - Invoke-CiPython -m flake8 app
+    - Invoke-CiPython -m pylint app
+    - Invoke-CiPython -m vulture app
     - pyupgrade --py312-plus app
 
-# -------------------------
-# Format
-# -------------------------
 format:
   stage: format
   script:
-    - pip install black
-    - black --check .
+    - Invoke-CiPython -m pip install black
+    - Invoke-CiPython -m black --check .
 
-# -------------------------
-# Type Check
-# -------------------------
 type_check:
   stage: type_check
   script:
-    - pip install mypy
-    - mypy app
+    - Invoke-CiPython -m pip install mypy
+    - Invoke-CiPython -m mypy app
 
-# -------------------------
-# Tests + Coverage
-# -------------------------
 test:
   stage: test
   script:
-    - pip install pytest pytest-cov
-    - pytest tests --cov=app --cov-report=term --cov-report=xml
+    - Invoke-CiPython -m pip install pytest pytest-cov
+    - Invoke-CiPython -m pytest tests --cov=app --cov-report=term --cov-report=xml
 
-# -------------------------
-# Security
-# -------------------------
 security:
   stage: security
   script:
-    - pip install bandit semgrep pip-audit
-    - bandit -r app
+    - Invoke-CiPython -m pip install bandit semgrep pip-audit
+    - Invoke-CiPython -m bandit -r app
     - semgrep --config=auto .
     - pip-audit
