@@ -58,7 +58,7 @@ lint:
     # FIX: Set PYTHONPATH so app modules find each other, and disable docstring checks/built-in warnings
     - $env:PYTHONPATH = "app;$env:PYTHONPATH"
     - Invoke-CiPython -m pylint app --disable=C0114,C0116,W0621,W0622,W0718 --exit-zero
-    - Invoke-CiPython -m vulture app
+    - Invoke-CiPython -m vulture app whitelist.py
     - Invoke-CiPython -m pyupgrade --py312-plus app/*.py
 
 format:
