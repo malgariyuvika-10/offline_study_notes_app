@@ -15,7 +15,7 @@ class ImageExtractor:
 
             text = pytesseract.image_to_string(image)
 
-            return text.strip()
+            return str(text).strip()
 
         except Exception as error:
             raise Exception(f"OCR extraction failed: {error}") from error

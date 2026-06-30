@@ -16,4 +16,4 @@ class WhisperEngine:
 
         result = self.model.transcribe(audio_path)
 
-        return result["text"]
+        return str(result["text"])

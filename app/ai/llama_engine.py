@@ -18,4 +18,4 @@ class LlamaEngine:
 
         response = self.model(prompt, max_tokens=512, temperature=0.3, stop=["</s>"])
 
-        return response["choices"][0]["text"].strip()
+        return str(response["choices"][0]["text"]).strip()

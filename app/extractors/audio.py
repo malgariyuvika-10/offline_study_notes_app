@@ -15,7 +15,7 @@ class AudioExtractor:
         try:
             result = self.model.transcribe(audio_path)
 
-            return result["text"].strip()
+            return str(result["text"]).strip()
 
         except Exception as error:
             raise Exception(f"Audio transcription failed: {error}") from error

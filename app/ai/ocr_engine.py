@@ -14,4 +14,4 @@ class OCREngine:
 
         text = pytesseract.image_to_string(image)
 
-        return text.strip()
+        return str(text).strip()
