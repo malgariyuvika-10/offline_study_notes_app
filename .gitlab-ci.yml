@@ -59,7 +59,8 @@ lint:
     - $env:PYTHONPATH = "app;$env:PYTHONPATH"
     - Invoke-CiPython -m pylint app --disable=C0114,C0116,W0621,W0622,W0718 --exit-zero
     - Invoke-CiPython -m vulture app whitelist.py
-    - Invoke-CiPython -m pyupgrade --py312-plus app/*.py
+    # FIX: Use a PowerShell pipeline to expand and process files recursively without breaking on Windows wildcards
+    - Get-ChildItem -Path app -Filter *.py -Recurse | ForEach-Object { Invoke-CiPython -m pyupgrade --py312-plus $_.FullName }
 
 format:
   stage: format
