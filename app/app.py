@@ -20,12 +20,17 @@ pytesseract.pytesseract.tesseract_cmd = (
 # -----------------------------
 # AUDIO SUPPORT
 # -----------------------------
-try:
-    import speech_recognition as sr
-    from pydub import AudioSegment
-    AUDIO_OK = True
-except:
-    AUDIO_OK = False
+import whisper
+import tempfile
+import os
+# -----------------------------
+# WHISPER MODEL
+# -----------------------------
+@st.cache_resource
+def load_whisper_model():
+    return whisper.load_model("base")   # tiny, base, small
+
+whisper_model = load_whisper_model()
 
 # -----------------------------
 # PAGE CONFIG
@@ -81,39 +86,39 @@ if uploaded:
 st.markdown("---")
 
 # =========================================================
-# AUDIO
+# AUDIO (WHISPER OFFLINE)
 # =========================================================
 def extract_audio_text(file_bytes, filename):
-
-    if not AUDIO_OK:
-        return "Audio libraries missing"
-
-    recognizer = sr.Recognizer()
-
+    """
+    Transcribe MP3/WAV/M4A audio using Whisper (Offline)
+    """
     try:
-        audio_stream = io.BytesIO(file_bytes)
+        suffix = os.path.splitext(filename)[1]
 
-        if filename.endswith(".mp3"):
-            audio = AudioSegment.from_file(audio_stream, format="mp3")
-        elif filename.endswith(".wav"):
-            audio = AudioSegment.from_file(audio_stream, format="wav")
-        else:
-            return "Unsupported audio format"
+        # Save uploaded audio temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp.write(file_bytes)
+            temp_audio = tmp.name
 
-        wav_io = io.BytesIO()
-        audio.export(wav_io, format="wav")
-        wav_io.seek(0)
+        # Transcribe using Whisper
+        result = whisper_model.transcribe(
+            temp_audio,
+            fp16=False,      # CPU mode
+            verbose=False
+        )
 
-        with sr.AudioFile(wav_io) as source:
-            audio_data = recognizer.record(source)
+        # Delete temp file
+        os.remove(temp_audio)
 
-        try:
-            return recognizer.recognize_google(audio_data)
-        except:
-            return "Could not transcribe audio"
+        transcript = result["text"].strip()
+
+        if transcript == "":
+            return "No speech detected."
+
+        return transcript
 
     except Exception as e:
-        return f"Audio error: {str(e)}"
+        return f"Could not transcribe audio: {str(e)}"
 
 # =========================================================
 # PROCESS
@@ -165,9 +170,13 @@ if st.session_state.uploaded_file:
             image = Image.open(io.BytesIO(file_bytes))
             text = pytesseract.image_to_string(image)
 
-        # ---------------- AUDIO ----------------
-        elif filename.endswith((".mp3", ".wav")):
-            text = extract_audio_text(file_bytes, filename)
+        elif filename.lower().endswith((".mp3", ".wav", ".m4a", ".flac")):
+
+            with st.spinner("🎤 Transcribing audio using Whisper..."):
+                text = extract_audio_text(file_bytes, filename)
+
+            st.subheader("🎙 Transcript")
+            st.write(text)
 
         else:
             text = ""

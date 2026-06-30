@@ -26,13 +26,7 @@ opencv-python-headless>=4.10.0
 # ============================
 # Audio Processing
 # ============================
-openai-whisper>=20231117
 ffmpeg-python>=0.2.0
-
-# ============================
-# CPU LLM
-# ============================
-llama-cpp-python>=0.2.85
 
 # ============================
 # Data Processing
