@@ -86,4 +86,5 @@ security:
   script:
     - Invoke-CiPython -m pip install bandit pip-audit
     - Invoke-CiPython -m bandit -r app
-    - Invoke-CiPython -m pip-audit
+    # FIX: Call pip-audit directly instead of passing it as a module to Python
+    - pip-audit
