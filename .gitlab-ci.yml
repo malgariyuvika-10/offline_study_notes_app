@@ -12,9 +12,9 @@ before_script:
   - python -m pip install --upgrade pip
   - pip install -r requirements.txt
 
-# ===================================
-# Linting
-# ===================================
+# -------------------------
+# Lint
+# -------------------------
 lint:
   stage: lint
   script:
@@ -30,49 +30,49 @@ quality:
 pyupgrade:
   stage: lint
   script:
-    - pyupgrade --py312-plus $(find app -name "*.py")
+    - pyupgrade --py312-plus app/**/*.py
 
-# ===================================
-# Formatting
-# ===================================
+# -------------------------
+# Format
+# -------------------------
 format:
   stage: format
   script:
     - black --check .
 
-# ===================================
-# Type Checking
-# ===================================
+# -------------------------
+# Type Check
+# -------------------------
 type_check:
   stage: type_check
   script:
     - mypy app
 
-# ===================================
-# Testing
-# ===================================
+# -------------------------
+# Tests
+# -------------------------
 test:
   stage: test
   script:
     - pytest tests
 
-# ===================================
+# -------------------------
 # Coverage
-# ===================================
+# -------------------------
 coverage:
   stage: coverage
   script:
     - pytest --cov=app --cov-report=term --cov-report=xml
 
-# ===================================
+# -------------------------
 # Security
-# ===================================
-security:
+# -------------------------
+bandit_scan:
   stage: security
   script:
     - bandit -r app
 
-semgrep:
+semgrep_scan:
   stage: security
   script:
     - semgrep --config=auto .
