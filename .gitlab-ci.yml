@@ -7,8 +7,8 @@ stages:
   - security
 
 before_script:
-  - py -m pip install --upgrade pip
-  - py -m pip install -r requirements.txt
+  - python -m pip install --upgrade pip
+  - python -m pip install -r requirements.txt
 
 # -------------------------
 # Lint
@@ -16,19 +16,19 @@ before_script:
 lint:
   stage: lint
   script:
-    - py -m ruff check .
+    - python -m ruff check .
 
 quality:
   stage: lint
   script:
-    - py -m flake8 app
-    - py -m pylint app
-    - py -m vulture app
+    - python -m flake8 app
+    - python -m pylint app
+    - python -m vulture app
 
 pyupgrade:
   stage: lint
   script:
-    - py -m pyupgrade --py312-plus app/**/*.py
+    - python -m pyupgrade --py312-plus app/**/*.py
 
 # -------------------------
 # Format
@@ -36,7 +36,7 @@ pyupgrade:
 format:
   stage: format
   script:
-    - py -m black --check .
+    - python -m black --check .
 
 # -------------------------
 # Type Check
@@ -44,7 +44,7 @@ format:
 type_check:
   stage: type_check
   script:
-    - py -m mypy app
+    - python -m mypy app
 
 # -------------------------
 # Tests
@@ -52,7 +52,7 @@ type_check:
 test:
   stage: test
   script:
-    - py -m pytest tests
+    - python -m pytest tests
 
 # -------------------------
 # Coverage
@@ -60,7 +60,7 @@ test:
 coverage:
   stage: coverage
   script:
-    - py -m pytest --cov=app --cov-report=term --cov-report=xml
+    - python -m pytest --cov=app --cov-report=term --cov-report=xml
 
 # -------------------------
 # Security
@@ -68,14 +68,14 @@ coverage:
 bandit_scan:
   stage: security
   script:
-    - py -m bandit -r app
+    - python -m bandit -r app
 
 semgrep_scan:
   stage: security
   script:
-    - py -m semgrep --config=auto .
+    - python -m semgrep --config=auto .
 
 dependency_audit:
   stage: security
   script:
-    - py -m pip_audit
+    - python -m pip_audit
