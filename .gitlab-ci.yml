@@ -78,7 +78,8 @@ test:
   stage: test
   script:
     - Invoke-CiPython -m pip install pytest pytest-cov
-    - Invoke-CiPython -m pytest tests --cov=app --cov-report=term --cov-report=xml
+    # Change "tests" to "." to scan the entire project, or to your specific folder name
+    - Invoke-CiPython -m pytest . --cov=app --cov-report=term --cov-report=xml
 
 security:
   stage: security
