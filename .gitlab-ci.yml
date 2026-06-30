@@ -6,16 +6,25 @@ stages:
   - coverage
   - security
 
-# -------------------------
-# Global setup (Windows-safe Python detection)
-# -------------------------
 before_script:
-  - python --version || py --version
-  - python -m pip install --upgrade pip || py -m pip install --upgrade pip
-  - python -m pip install -r requirements.txt || py -m pip install -r requirements.txt
+  - |
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+      python --version
+    } elseif (Get-Command py -ErrorAction SilentlyContinue) {
+      py --version
+    } else {
+      Write-Host "Python is not installed on this runner"
+      exit 1
+    }
 
-# helper variable idea (not required but useful):
-# use: py instead of python if python fails
+  - |
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+    } else {
+      py -m pip install --upgrade pip
+      py -m pip install -r requirements.txt
+    }
 
 # -------------------------
 # Lint
@@ -26,22 +35,21 @@ lint:
     - python -m pip install ruff flake8 pylint vulture
     - python -m ruff check .
 
+# -------------------------
 quality:
   stage: lint
   script:
-    - python -m pip install flake8 pylint vulture
     - python -m flake8 app
     - python -m pylint app
     - python -m vulture app
 
+# -------------------------
 pyupgrade:
   stage: lint
   script:
     - python -m pip install pyupgrade
     - python -m pyupgrade --py312-plus app
 
-# -------------------------
-# Format
 # -------------------------
 format:
   stage: format
@@ -50,16 +58,12 @@ format:
     - python -m black --check .
 
 # -------------------------
-# Type Check
-# -------------------------
 type_check:
   stage: type_check
   script:
     - python -m pip install mypy
     - python -m mypy app
 
-# -------------------------
-# Tests
 # -------------------------
 test:
   stage: test
@@ -68,16 +72,11 @@ test:
     - python -m pytest tests
 
 # -------------------------
-# Coverage
-# -------------------------
 coverage:
   stage: coverage
   script:
-    - python -m pip install pytest pytest-cov
     - python -m pytest --cov=app --cov-report=term --cov-report=xml
 
-# -------------------------
-# Security
 # -------------------------
 bandit_scan:
   stage: security
