@@ -1,3 +1,5 @@
+image: python:3.12
+
 stages:
   - lint
   - format
@@ -7,24 +9,9 @@ stages:
   - security
 
 before_script:
-  - |
-    if (Get-Command python -ErrorAction SilentlyContinue) {
-      python --version
-    } elseif (Get-Command py -ErrorAction SilentlyContinue) {
-      py --version
-    } else {
-      Write-Host "Python is not installed on this runner"
-      exit 1
-    }
-
-  - |
-    if (Get-Command python -ErrorAction SilentlyContinue) {
-      python -m pip install --upgrade pip
-      python -m pip install -r requirements.txt
-    } else {
-      py -m pip install --upgrade pip
-      py -m pip install -r requirements.txt
-    }
+  - python --version
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
 
 # -------------------------
 # Lint
@@ -32,66 +19,74 @@ before_script:
 lint:
   stage: lint
   script:
-    - python -m pip install ruff flake8 pylint vulture
-    - python -m ruff check .
+    - pip install ruff flake8 pylint vulture
+    - ruff check .
 
-# -------------------------
 quality:
   stage: lint
   script:
-    - python -m flake8 app
-    - python -m pylint app
-    - python -m vulture app
+    - flake8 app
+    - pylint app
+    - vulture app
 
-# -------------------------
 pyupgrade:
   stage: lint
   script:
-    - python -m pip install pyupgrade
-    - python -m pyupgrade --py312-plus app
+    - pip install pyupgrade
+    - pyupgrade --py312-plus app
 
+# -------------------------
+# Format
 # -------------------------
 format:
   stage: format
   script:
-    - python -m pip install black
-    - python -m black --check .
+    - pip install black
+    - black --check .
 
+# -------------------------
+# Type Check
 # -------------------------
 type_check:
   stage: type_check
   script:
-    - python -m pip install mypy
-    - python -m mypy app
+    - pip install mypy
+    - mypy app
 
+# -------------------------
+# Tests
 # -------------------------
 test:
   stage: test
   script:
-    - python -m pip install pytest pytest-cov
-    - python -m pytest tests
+    - pip install pytest pytest-cov
+    - pytest tests
 
+# -------------------------
+# Coverage
 # -------------------------
 coverage:
   stage: coverage
   script:
-    - python -m pytest --cov=app --cov-report=term --cov-report=xml
+    - pytest --cov=app --cov-report=term --cov-report=xml
 
+# -------------------------
+# Security
 # -------------------------
 bandit_scan:
   stage: security
   script:
-    - python -m pip install bandit
-    - python -m bandit -r app
+    - pip install bandit
+    - bandit -r app
 
 semgrep_scan:
   stage: security
   script:
-    - python -m pip install semgrep
-    - python -m semgrep --config=auto .
+    - pip install semgrep
+    - semgrep --config=auto .
 
 dependency_audit:
   stage: security
   script:
-    - python -m pip install pip-audit
-    - python -m pip_audit
+    - pip install pip-audit
+    - pip-audit
