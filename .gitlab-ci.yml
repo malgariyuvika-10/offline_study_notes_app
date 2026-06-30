@@ -8,8 +8,8 @@ stages:
 variables:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONUTF8: "1"
-  # FIX: Hardcode your Windows local user account path as the fallback global variable
-  PYTHON: "C:\Users\Hepsibha\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+  # FIX: Using single quotes prevents YAML from interpreting backslashes as escape sequences
+  PYTHON: 'C:\Users\Hepsibha\AppData\Local\Python\pythoncore-3.14-64\python.exe'
 
 default:
   tags:
