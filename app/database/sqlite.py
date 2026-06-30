@@ -34,10 +34,13 @@ class DatabaseManager:
     def insert_note(self, title, summary, json_output):
         """Insert a processed note."""
 
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
         INSERT INTO notes(title, summary, json_output)
         VALUES (?, ?, ?)
-        """, (title, summary, json_output))
+        """,
+            (title, summary, json_output),
+        )
 
         self.connection.commit()
 

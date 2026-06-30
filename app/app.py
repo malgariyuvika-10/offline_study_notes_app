@@ -1,45 +1,39 @@
-import streamlit as st
-import time
-import json
-from datetime import datetime
 import io
+import json
+import os
+import tempfile
+import time
+from datetime import datetime
 
-from pypdf import PdfReader
+import pytesseract
+import streamlit as st
+import whisper
 from backend.pipeline import StudyNotesPipeline
 
 # -----------------------------
 # OCR SUPPORT
 # -----------------------------
 from PIL import Image
-import pytesseract
+from pypdf import PdfReader
 
 # Set the path to the Tesseract OCR executable
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
-# -----------------------------
-# AUDIO SUPPORT
-# -----------------------------
-import whisper
-import tempfile
-import os
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+
 # -----------------------------
 # WHISPER MODEL
 # -----------------------------
 @st.cache_resource
 def load_whisper_model():
-    return whisper.load_model("base")   # tiny, base, small
+    return whisper.load_model("base")  # tiny, base, small
+
 
 whisper_model = load_whisper_model()
 
 # -----------------------------
 # PAGE CONFIG
 # -----------------------------
-st.set_page_config(
-    page_title="Offline Study Notes AI",
-    page_icon="📚",
-    layout="wide"
-)
+st.set_page_config(page_title="Offline Study Notes AI", page_icon="📚", layout="wide")
 
 # -----------------------------
 # SIDEBAR
@@ -73,8 +67,7 @@ st.markdown("---")
 st.header("📤 Upload File")
 
 uploaded = st.file_uploader(
-    "Upload file",
-    type=["pdf", "png", "jpg", "jpeg", "txt", "wav", "mp3"]
+    "Upload file", type=["pdf", "png", "jpg", "jpeg", "txt", "wav", "mp3"]
 )
 
 if uploaded:
@@ -84,6 +77,7 @@ if uploaded:
     st.write("Type:", uploaded.type)
 
 st.markdown("---")
+
 
 # =========================================================
 # AUDIO (WHISPER OFFLINE)
@@ -103,8 +97,8 @@ def extract_audio_text(file_bytes, filename):
         # Transcribe using Whisper
         result = whisper_model.transcribe(
             temp_audio,
-            fp16=False,      # CPU mode
-            verbose=False
+            fp16=False,  # CPU mode
+            verbose=False,
         )
 
         # Delete temp file
@@ -120,15 +114,14 @@ def extract_audio_text(file_bytes, filename):
     except Exception as e:
         return f"Could not transcribe audio: {str(e)}"
 
+
 # =========================================================
 # PROCESS
 # =========================================================
 st.header("⚙️ Process File")
 
 if st.session_state.uploaded_file:
-
     if st.button("🚀 Start Processing"):
-
         progress = st.progress(0)
         status = st.empty()
 
@@ -138,7 +131,7 @@ if st.session_state.uploaded_file:
             "Processing content...",
             "Generating summary...",
             "Extracting topics...",
-            "Finalizing..."
+            "Finalizing...",
         ]
 
         for i in range(100):
@@ -171,7 +164,6 @@ if st.session_state.uploaded_file:
             text = pytesseract.image_to_string(image)
 
         elif filename.lower().endswith((".mp3", ".wav", ".m4a", ".flac")):
-
             with st.spinner("🎤 Transcribing audio using Whisper..."):
                 text = extract_audio_text(file_bytes, filename)
 
@@ -191,10 +183,9 @@ if st.session_state.uploaded_file:
 
         st.session_state.result = result
 
-        st.session_state.history.append({
-            "file": filename,
-            "time": datetime.now().strftime("%d-%m-%Y %H:%M")
-        })
+        st.session_state.history.append(
+            {"file": filename, "time": datetime.now().strftime("%d-%m-%Y %H:%M")}
+        )
 
         st.success("Processing Completed 🎉")
 
@@ -206,7 +197,6 @@ st.markdown("---")
 st.header("📄 Results")
 
 if st.session_state.result:
-
     result = st.session_state.result
 
     tab1, tab2, tab3 = st.tabs(["Summary", "Topics", "Flashcards"])
@@ -228,7 +218,7 @@ if st.session_state.result:
         "Download JSON",
         json.dumps(result, indent=4),
         file_name="notes.json",
-        mime="application/json"
+        mime="application/json",
     )
 
 else:

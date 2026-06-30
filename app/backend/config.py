@@ -24,14 +24,4 @@ MAX_CHUNK_SIZE = 1024
 SUMMARY_LENGTH = 300
 
 # Supported file formats
-type=[
-    "pdf",
-    "png",
-    "jpg",
-    "jpeg",
-    "txt",
-    "wav",
-    "mp3",
-    "m4a",
-    "flac"
-]
+type = ["pdf", "png", "jpg", "jpeg", "txt", "wav", "mp3", "m4a", "flac"]

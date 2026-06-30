@@ -2,8 +2,8 @@
 Image OCR extraction.
 """
 
-from PIL import Image
 import pytesseract
+from PIL import Image
 
 
 class ImageExtractor:
@@ -18,4 +18,4 @@ class ImageExtractor:
             return text.strip()
 
         except Exception as error:
-            raise Exception(f"OCR extraction failed: {error}")
+            raise Exception(f"OCR extraction failed: {error}") from error

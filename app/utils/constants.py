@@ -3,15 +3,7 @@ Application constants.
 """
 
 # Supported file formats
-SUPPORTED_FORMATS = [
-    ".pdf",
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".wav",
-    ".mp3",
-    ".txt"
-]
+SUPPORTED_FORMATS = [".pdf", ".png", ".jpg", ".jpeg", ".wav", ".mp3", ".txt"]
 
 # Application name
 APP_NAME = "Offline Study Notes Structuring App"

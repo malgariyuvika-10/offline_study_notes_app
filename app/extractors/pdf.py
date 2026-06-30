@@ -21,4 +21,4 @@ class PDFExtractor:
             return text.strip()
 
         except Exception as error:
-            raise Exception(f"PDF extraction failed: {error}")
+            raise Exception(f"PDF extraction failed: {error}") from error

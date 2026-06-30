@@ -18,4 +18,4 @@ class AudioExtractor:
             return result["text"].strip()
 
         except Exception as error:
-            raise Exception(f"Audio transcription failed: {error}")
+            raise Exception(f"Audio transcription failed: {error}") from error
