@@ -12,32 +12,72 @@ before_script:
   - python -m pip install --upgrade pip
   - pip install -r requirements.txt
 
+# ===================================
+# Linting
+# ===================================
 lint:
   stage: lint
   script:
     - ruff check .
 
+quality:
+  stage: lint
+  script:
+    - flake8 app
+    - pylint app
+    - vulture app
+
+pyupgrade:
+  stage: lint
+  script:
+    - pyupgrade --py312-plus $(find app -name "*.py")
+
+# ===================================
+# Formatting
+# ===================================
 format:
   stage: format
   script:
     - black --check .
 
+# ===================================
+# Type Checking
+# ===================================
 type_check:
   stage: type_check
   script:
     - mypy app
 
+# ===================================
+# Testing
+# ===================================
 test:
   stage: test
   script:
     - pytest tests
 
+# ===================================
+# Coverage
+# ===================================
 coverage:
   stage: coverage
   script:
     - pytest --cov=app --cov-report=term --cov-report=xml
 
+# ===================================
+# Security
+# ===================================
 security:
   stage: security
   script:
     - bandit -r app
+
+semgrep:
+  stage: security
+  script:
+    - semgrep --config=auto .
+
+dependency_audit:
+  stage: security
+  script:
+    - pip-audit
