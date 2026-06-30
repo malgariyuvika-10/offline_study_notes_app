@@ -54,7 +54,8 @@ lint:
   script:
     - Invoke-CiPython -m pip install ruff flake8 pylint vulture pyupgrade
     - Invoke-CiPython -m ruff check .
-    - Invoke-CiPython -m flake8 app
+    # FIX: Increased max line length to match ruff standard
+    - Invoke-CiPython -m flake8 app --max-line-length=88
     - Invoke-CiPython -m pylint app
     - Invoke-CiPython -m vulture app
     - Invoke-CiPython -m pyupgrade --py312-plus app/*.py
